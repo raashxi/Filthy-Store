@@ -7,10 +7,17 @@
   --foreground: #ffffff;
 }
 
-body {
-  background-color: var(--background);
-  color: var(--foreground);
-  overflow-x: hidden;
-  -webkit-font-smoothing: antialiased;
-  overscroll-behavior-y: none; /* Prevents rubber-banding on mobile */
+@layer base {
+  body {
+    background-color: var(--background);
+    color: var(--foreground);
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+    overscroll-behavior-y: none;
+    font-family: var(--font-space-grotesk), sans-serif;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-rajdhani), sans-serif;
+  }
 }

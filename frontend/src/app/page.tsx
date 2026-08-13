@@ -1,19 +1,8 @@
 import { client } from "../lib/sanity";
-
-// Define the shape of our new expanded data
-interface AccountProps {
-  _id: string;
-  title: string;
-  sku: string;
-  uid: string;
-  price: number;
-  game: string;
-  description: string;
-  mainImageUrl: string;
-}
+import { AccountCard, AccountProps } from "../components/AccountCard";
 
 export default async function Home() {
-  // GROQ query fetching the new fields and resolving the image URL
+  // Fetch data from Sanity CMS
   const query = `*[_type == "account"] {
     _id,
     title,
@@ -28,44 +17,33 @@ export default async function Home() {
   const accounts: AccountProps[] = await client.fetch(query);
 
   return (
-    <main className="flex min-h-screen flex-col items-center p-6 pt-20">
-      <h1 className="text-2xl font-bold uppercase tracking-widest text-white/90 mb-12">
-        Database Link Established
-      </h1>
+    <main className="flex min-h-screen flex-col items-center bg-[#050505] p-6 pt-24 selection:bg-green-500/30">
       
-      {/* Mobile-First Grid Layout */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 w-full max-w-5xl">
+      {/* Hero Header Section */}
+      <div className="mb-16 w-full max-w-6xl text-center md:text-left">
+        <h1 className="font-rajdhani text-4xl font-bold uppercase tracking-widest text-white md:text-6xl lg:text-7xl">
+          Filthy <span className="text-green-500">Store</span>
+        </h1>
+        <p className="mt-4 max-w-xl font-body text-gray-400 md:text-lg">
+          The most exclusive marketplace for premium game accounts. 
+          Verified. Secure. Ready for deployment.
+        </p>
+      </div>
+
+      {/* Grid Layout */}
+      <div className="grid w-full max-w-6xl grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
         {accounts.length > 0 ? (
           accounts.map((account) => (
-            <div key={account._id} className="bg-white/5 border border-white/10 rounded-2xl p-4 text-left backdrop-blur-md">
-              {account.mainImageUrl && (
-                <img 
-                  src={account.mainImageUrl} 
-                  alt={account.title} 
-                  className="w-full h-48 object-cover rounded-xl mb-4 border border-white/5"
-                />
-              )}
-              <div className="flex justify-between items-start mb-2">
-                <h2 className="text-lg font-bold text-white leading-tight">{account.title}</h2>
-                <span className="bg-white/10 text-xs px-2 py-1 rounded text-gray-300 ml-2">{account.game}</span>
-              </div>
-              
-              <div className="flex justify-between items-center mb-4 border-b border-white/10 pb-3">
-                <span className="text-xs text-gray-400 font-mono">SKU: {account.sku}</span>
-                <span className="text-xs text-gray-400 font-mono">UID: {account.uid || 'N/A'}</span>
-              </div>
-              
-              <p className="text-green-400 font-mono text-xl mb-3">${account.price}</p>
-              
-              {account.description && (
-                <p className="text-sm text-gray-400 line-clamp-2">{account.description}</p>
-              )}
-            </div>
+            <AccountCard key={account._id} account={account} />
           ))
         ) : (
-          <p className="text-red-400 col-span-full text-center">No accounts found. Go publish one in Sanity!</p>
+          <div className="col-span-full flex flex-col items-center justify-center rounded-2xl border border-white/5 bg-white/5 p-12 text-center backdrop-blur-md">
+            <h3 className="font-rajdhani text-2xl font-bold text-white/50">INVENTORY EMPTY</h3>
+            <p className="mt-2 text-gray-500">Awaiting data sync from Sanity CMS...</p>
+          </div>
         )}
       </div>
+      
     </main>
   );
 }
