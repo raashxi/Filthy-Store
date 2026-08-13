@@ -1,10 +1,12 @@
 import React from 'react';
 import Image from "next/image";
+import Link from "next/link";
 
 // We export the interface so it can be shared with page.tsx
 export interface AccountProps {
   _id: string;
   title: string;
+  slug: string;
   sku: string;
   uid: string;
   price: number;
@@ -62,9 +64,12 @@ export function AccountCard({ account }: { account: AccountProps }) {
         <span className="font-rajdhani text-2xl font-bold text-green-400">
           ${account.price}
         </span>
-        <button className="rounded-lg bg-white/10 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-green-500 hover:text-black">
-          View Details
-        </button>
+        <Link 
+        href={`/account/${account.slug}`}
+        className="rounded-lg bg-white/10 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-green-500 hover:text-black"
+      >
+        View Details
+      </Link>
       </div>
     </div>
   );
