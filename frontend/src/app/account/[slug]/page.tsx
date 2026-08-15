@@ -1,18 +1,73 @@
-import { client } from "../../../lib/sanity";
-import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ImageGallery } from "../../../components/ImageGallery";
+import { ArrowLeft, BadgeCheck, MessageCircle, ShieldCheck } from "lucide-react";
+import { AccountProps } from "@/components/AccountCard";
+import { FadeIn } from "@/components/FadeIn";
+import { ImageGallery } from "@/components/ImageGallery";
+import { client } from "@/lib/sanity";
 
+type ProductAccount = AccountProps & {
+  galleryUrls?: string[];
+  highlights?: string[];
+  tags?: string[];
+};
 
-// Await the params for Next.js 15+ compatibility
+function splitDescription(description?: string) {
+  if (!description) return [];
+
+  const newlineItems = description
+    .split(/\r?\n/)
+    .map((item) => item.trim())
+    .filter(Boolean);
+
+  if (newlineItems.length > 1) return newlineItems;
+
+  const normalized = description.replace(/\s+/g, " ").trim();
+  if (!normalized) return [];
+
+  const delimiterItems = normalized
+    .split(/\s*(?:[•|;]+|\s+-\s+)\s*/)
+    .map((item) => item.trim())
+    .filter(Boolean);
+
+  if (delimiterItems.length > 1) return delimiterItems;
+
+  const markers = [
+    "ACCOUNT LEVEL",
+    "COLLECTION LEVEL",
+    "MYTHIC FASHION",
+    "RENAME CARD",
+    "UC AVAILABLE",
+    "M416",
+    "UMP",
+    "DP ",
+    "MYSTIC",
+    "ABAKEN",
+    "MANY MORE",
+    "TIME TRAVELLER",
+    "ROGUE SET",
+    "INVADER SET",
+    "FOOL BACKPACK",
+    "RAVEN BACKPACK",
+    "SEREN",
+    "HELLFIRE",
+  ];
+
+  const markerPattern = new RegExp(`\\s+(?=${markers.map((marker) => marker.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")).join("|")})`, "gi");
+
+  return normalized
+    .split(markerPattern)
+    .map((item) => item.trim())
+    .filter(Boolean);
+}
+
 export default async function ProductPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
 
-  // Fetch the single account that matches the slug
   const query = `*[_type == "account" && slug.current == $slug][0] {
     _id,
     title,
+    "slug": slug.current,
     sku,
     uid,
     price,
@@ -24,83 +79,96 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
     tags
   }`;
 
-  const account = await client.fetch(query, { slug });
+  const account: ProductAccount | null = await client.fetch(query, { slug });
 
-  // If no account is found, trigger a 404 page
   if (!account) {
     return notFound();
   }
 
+  const galleryImages = Array.from(new Set([account.mainImageUrl, ...(account.galleryUrls || [])].filter(Boolean))) as string[];
+  const brokerText = encodeURIComponent(`I'm interested in purchasing SKU ${account.sku} - ${account.title}`);
+  const descriptionItems = splitDescription(account.description);
+  const specs = [
+    ["Game", account.game],
+    ["SKU", account.sku],
+    ["UID", account.uid || "Broker disclosed"],
+    ["Asset Class", account.price > 1500 ? "Collector" : "Premium"],
+    ["Verification", "Broker reviewed"],
+  ];
+
   return (
-    <main className="relative flex min-h-screen flex-col items-center bg-[#050505] p-6 pt-32">
-      
-      {/* 3D Background */}
-
-      {/* Content Container (z-10 keeps it above the 3D canvas) */}
-      <div className="relative z-10 w-full max-w-6xl">
-        
-        {/* Back Button */}
-        <Link href="/" className="mb-8 inline-flex items-center text-sm font-medium text-gray-400 transition-colors hover:text-green-400">
-          ← Back to Catalog
-        </Link>
-
-
-        {/* Top Section: Image & Core Details */}
-        <div className="grid grid-cols-1 gap-12 lg:grid-cols-2">
-          
-          {/* Left: Main Image - PERFECT 16:9 ASPECT RATIO FIX */}
-          <div className="w-full overflow-hidden rounded-2xl border border-white/10 bg-black/50 shadow-lg">
-            {account.mainImageUrl && (
-              <Image 
-                src={account.mainImageUrl} 
-                alt={account.title} 
-                width={1920}
-                height={1080}
-                className="h-auto w-full object-cover"
-                sizes="(max-width: 1024px) 100vw, 50vw"
-                priority
-              />
-            )}
+    <main className="site-shell">
+      <section className="container product-layout">
+        <FadeIn>
+          <Link href={account.game === "PUBG" ? "/pubg" : `/search?q=${encodeURIComponent(account.game)}`} className="back-link">
+            <ArrowLeft size={16} /> Back to catalog
+          </Link>
+          <div style={{ marginTop: 22 }}>
+            <ImageGallery images={galleryImages} />
           </div>
+        </FadeIn>
 
-          {/* Right: Specs & CTA */}
-          <div className="flex flex-col justify-center">
-            <div className="mb-4 inline-block w-fit rounded bg-white/10 px-3 py-1 text-xs font-semibold tracking-widest text-white backdrop-blur-md">
-              {account.game}
+        <FadeIn delay={0.1} direction="left">
+          <aside className="glass product-panel corner-frame">
+            <div className="eyebrow">
+              <BadgeCheck size={15} /> Verified Asset
             </div>
-            
-            <h1 className="font-rajdhani text-4xl font-bold uppercase text-white md:text-5xl">
-              {account.title}
-            </h1>
-            
-            <div className="mt-6 flex items-center gap-6 border-b border-white/10 pb-6 font-mono text-sm text-gray-400">
-              <span>SKU: {account.sku}</span>
-              <span>UID: {account.uid || 'HIDDEN'}</span>
-            </div>
+            <h1 className="product-title">{account.title}</h1>
+            {descriptionItems.length > 0 && (
+              <div className="product-spec-list" aria-label="Account description">
+                {descriptionItems.map((item, index) => (
+                  <div className="product-spec-row" key={`${item}-${index}`}>
+                    {item}
+                  </div>
+                ))}
+              </div>
+            )}
 
-            <div className="mt-6">
-              <span className="font-rajdhani text-5xl font-bold text-green-400">
-                ${account.price}
-              </span>
-            </div>
+            <table className="spec-table">
+              <tbody>
+                {specs.map(([label, value]) => (
+                  <tr key={label}>
+                    <th>{label}</th>
+                    <td>{value}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
 
-            {/* The Broker CTA */}
-            <a 
-              href={`https://wa.me/YOUR_PHONE_NUMBER?text=I'm interested in purchasing SKU: ${account.sku} - ${account.title}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="mt-8 flex w-full items-center justify-center rounded-xl bg-green-500 px-6 py-4 font-bold text-black transition-all hover:bg-green-400 hover:shadow-[0_0_30px_rgba(34,197,94,0.3)]"
-            >
-              Contact Broker to Secure
+            <div className="product-price">${account.price?.toLocaleString()}</div>
+            <a href={`https://wa.me/YOUR_PHONE_NUMBER?text=${brokerText}`} target="_blank" rel="noopener noreferrer" className="brand-button" style={{ width: "100%", marginTop: 24 }}>
+              <MessageCircle size={18} /> Contact Broker
             </a>
+            <p className="product-copy" style={{ fontSize: 12, marginTop: 14 }}>
+              <ShieldCheck size={15} style={{ display: "inline", marginRight: 6, color: "var(--cyan-blue)", verticalAlign: -2 }} />
+              Broker-assisted review before transfer.
+            </p>
+          </aside>
+        </FadeIn>
+      </section>
+
+      <section className="container detail-grid">
+        <div className="glass detail-panel corner-frame">
+          <h2 className="detail-title">Highlights</h2>
+          <div className="highlight-list">
+            {(account.highlights?.length ? account.highlights : ["Verified ownership path", "Broker-assisted transfer", "High-value inventory review"]).map((item) => (
+              <div className="highlight-row" key={item}>
+                {item}
+              </div>
+            ))}
           </div>
         </div>
-
-        {/* Bottom Section: Image Gallery */}
-       {/* Bottom Section: Image Gallery Component */}
-     <ImageGallery images={account.galleryUrls} />
-
-      </div>
+        <div className="glass detail-panel corner-frame">
+          <h2 className="detail-title">Market Tags</h2>
+          <div className="chip-list">
+            {(account.tags?.length ? account.tags : [account.game, account.sku, "verified"]).map((tag) => (
+              <span className="chip" key={tag}>
+                {tag}
+              </span>
+            ))}
+          </div>
+        </div>
+      </section>
     </main>
   );
 }

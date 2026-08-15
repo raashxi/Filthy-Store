@@ -1,50 +1,70 @@
-import Link from 'next/link';
+"use client";
+
+import Link from "next/link";
+import { Menu, Search, ShoppingBag, UserRound, X, Zap } from "lucide-react";
+import { useState } from "react";
+
+const navItems = [
+  { href: "/", label: "Home" },
+  { href: "/pubg", label: "PUBG" },
+  { href: "/search?q=PES", label: "eFootball" },
+  { href: "/search?q=Free%20Fire", label: "Free Fire" },
+  { href: "/search", label: "Inventory" },
+  { href: "/search?q=verified", label: "Verified" },
+  { href: "/search?q=support", label: "Support" },
+];
 
 export function Navbar() {
+  const [open, setOpen] = useState(false);
+
   return (
-    <nav className="fixed top-0 z-50 w-full border-b border-cyan-500/20 bg-[#050505]/90 backdrop-blur-md">
-      <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-6">
-        
-        {/* Left: Mobile Header Logo Stack */}
-        <Link href="/" className="flex flex-col justify-center">
-          <span className="font-rajdhani text-2xl font-bold leading-none tracking-widest text-white">
-            FILTHY
+    <nav className="site-nav">
+      <div className="container nav-inner">
+        <Link href="/" className="brand-lockup" onClick={() => setOpen(false)}>
+          <span className="brand-mark">
+            <Zap size={22} />
           </span>
-          <div className="flex items-center gap-1">
-            <span className="font-mono text-[10px] font-bold tracking-[0.2em] text-cyan-400">
-              STORE
-            </span>
-            <div className="h-[2px] w-4 bg-cyan-400"></div>
-          </div>
+          <span>
+            <span className="brand-title">FILTHY</span>
+            <span className="brand-subtitle">STORE</span>
+          </span>
         </Link>
-        
-        {/* Right: Icon Group */}
-        <div className="flex items-center gap-5">
-          {/* Search Icon */}
-          <button aria-label="Search" className="text-white transition-colors hover:text-cyan-400">
-            <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-            </svg>
-          </button>
 
-          {/* Cart Icon with Blue Badge */}
-          <button aria-label="Cart" className="relative text-white transition-colors hover:text-cyan-400">
-            <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
-            </svg>
-            <span className="absolute -right-2 -top-2 flex h-4 w-4 items-center justify-center rounded-full bg-cyan-500 font-mono text-[9px] font-bold text-black">
-              3
-            </span>
-          </button>
+        <div className="nav-links" aria-label="Primary navigation">
+          {navItems.map((item) => (
+            <Link key={item.href} href={item.href} className="nav-link">
+              {item.label}
+            </Link>
+          ))}
+        </div>
 
-          {/* Premium Hamburger Menu */}
-          <button aria-label="Menu" className="text-white transition-colors hover:text-cyan-400">
-            <svg className="h-7 w-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-            </svg>
+        <div className="nav-tools">
+          <form action="/search" className="nav-search">
+            <Search size={16} />
+            <input name="q" type="search" placeholder="SKU / skin / UID" />
+          </form>
+          <Link href="/search" className="icon-button" aria-label="Search inventory">
+            <Search size={18} />
+          </Link>
+          <Link href="/search?q=cart" className="icon-button" aria-label="Broker cart" style={{ position: "relative" }}>
+            <ShoppingBag size={18} />
+            <span className="cart-dot">3</span>
+          </Link>
+          <Link href="/search?q=account" className="account-chip">
+            <UserRound size={15} /> Broker
+          </Link>
+          <button className="icon-button menu-toggle" type="button" aria-label="Toggle menu" onClick={() => setOpen((value) => !value)}>
+            {open ? <X size={20} /> : <Menu size={20} />}
           </button>
         </div>
-        
+      </div>
+
+      <div className={`mobile-panel ${open ? "open" : ""}`}>
+        {navItems.map((item) => (
+          <Link key={item.href} href={item.href} onClick={() => setOpen(false)}>
+            {item.label}
+          </Link>
+        ))}
       </div>
     </nav>
   );

@@ -18,8 +18,8 @@ const spaceGrotesk = Space_Grotesk({
 });
 
 export const metadata: Metadata = {
-  title: "Filthy Store | Premium Game Accounts",
-  description: "The safest place to buy high-tier PUBG, PES, and Free Fire accounts.",
+  title: "FILTHY STORE | Luxury Gaming Assets",
+  description: "A brokered luxury marketplace for verified high-tier PUBG, PES, and Free Fire accounts.",
 };
 
 export default function RootLayout({
@@ -29,7 +29,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={`${rajdhani.variable} ${spaceGrotesk.variable}`}>
-      <body className="bg-[#050505] text-white antialiased font-body selection:bg-green-500/30">
+      <body className="bg-obsidian font-body text-white antialiased selection:bg-[var(--cyan-blue-soft)] selection:text-white">
         <Navbar />
         {children}
       </body>

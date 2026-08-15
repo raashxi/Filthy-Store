@@ -1,9 +1,39 @@
-import { client } from "../../lib/sanity";
-import { AccountCard, AccountProps } from "../../components/AccountCard";
+import { SlidersHorizontal, Sparkles } from "lucide-react";
+import { AccountCard, AccountProps } from "@/components/AccountCard";
+import { FadeIn } from "@/components/FadeIn";
+import { client } from "@/lib/sanity";
 
-export default async function PubgStore() {
-  // Fetch ONLY PUBG accounts from Sanity
-  const query = `*[_type == "account" && game == "PUBG"] {
+type PubgSearchParams = Promise<{ tier?: string; sort?: string }>;
+
+const tierOptions = [
+  { label: "All tiers", value: "" },
+  { label: "Under $500", value: "under-500" },
+  { label: "$500-$1500", value: "500-1500" },
+  { label: "Collector", value: "collector" },
+];
+
+const sortOptions = [
+  { label: "Newest signal", value: "" },
+  { label: "Price low", value: "price-asc" },
+  { label: "Price high", value: "price-desc" },
+];
+
+function priceFilter(tier?: string) {
+  if (tier === "under-500") return "&& price < 500";
+  if (tier === "500-1500") return "&& price >= 500 && price <= 1500";
+  if (tier === "collector") return "&& price > 1500";
+  return "";
+}
+
+function sortClause(sort?: string) {
+  if (sort === "price-asc") return "price asc";
+  if (sort === "price-desc") return "price desc";
+  return "_createdAt desc";
+}
+
+export default async function PubgStore({ searchParams }: { searchParams: PubgSearchParams }) {
+  const params = await searchParams;
+  const query = `*[_type == "account" && game == "PUBG" ${priceFilter(params.tier)}] | order(${sortClause(params.sort)}) {
     _id,
     title,
     "slug": slug.current,
@@ -12,41 +42,69 @@ export default async function PubgStore() {
     price,
     game,
     description,
-    "mainImageUrl": mainImage.asset->url
+    "mainImageUrl": mainImage.asset->url,
+    highlights,
+    tags
   }`;
 
   const accounts: AccountProps[] = await client.fetch(query);
 
   return (
-    <main className="flex min-h-screen flex-col items-center bg-[#050505] p-6 pt-24 selection:bg-green-500/30">
-      
-      {/* PUBG Header Section */}
-      <div className="mb-16 w-full max-w-6xl text-center md:text-left">
-        <div className="mb-4 inline-block rounded bg-green-500/10 px-3 py-1 text-xs font-semibold tracking-widest text-green-400 border border-green-500/20">
-          DIVISION: ALPHA
-        </div>
-        <h1 className="font-rajdhani text-4xl font-bold uppercase tracking-widest text-white md:text-6xl">
-          PUBG <span className="text-green-500">MOBILE</span>
-        </h1>
-        <p className="mt-4 max-w-xl font-body text-gray-400 md:text-lg">
-          Verified high-tier accounts. M416 Glaciers, X-Suits, and Mythic Fashion.
-        </p>
-      </div>
+    <main className="site-shell">
+      <section className="container page-header">
+        <FadeIn>
+          <div className="showroom-top">
+            <div>
+              <div className="eyebrow">
+                <Sparkles size={15} /> Division Alpha
+              </div>
+              <h1 className="page-title metal-text">PUBG Mobile</h1>
+              <p className="page-copy">
+                A cinematic showroom for Glacier rifles, mythic wardrobes, X-Suits, elite-ranked builds, and collector-grade PUBG accounts.
+              </p>
+            </div>
 
-      {/* Grid Layout */}
-      <div className="grid w-full max-w-6xl grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            <form className="glass filter-panel">
+              <label className="field-label">
+                Tier
+                <select name="tier" defaultValue={params.tier || ""} className="select-shell">
+                  {tierOptions.map((option) => (
+                    <option key={option.value} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <label className="field-label">
+                Sort
+                <select name="sort" defaultValue={params.sort || ""} className="select-shell">
+                  {sortOptions.map((option) => (
+                    <option key={option.value} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <button className="brand-button" type="submit">
+                <SlidersHorizontal size={16} /> Filter
+              </button>
+            </form>
+          </div>
+        </FadeIn>
+      </section>
+
+      <section className="container inventory-grid">
         {accounts.length > 0 ? (
-          accounts.map((account) => (
-            <AccountCard key={account._id} account={account} />
-          ))
+          accounts.map((account, index) => <AccountCard key={account._id} account={account} index={index} />)
         ) : (
-          <div className="col-span-full flex flex-col items-center justify-center rounded-2xl border border-white/5 bg-white/5 p-12 text-center backdrop-blur-md">
-            <h3 className="font-rajdhani text-2xl font-bold text-white/50">INVENTORY EMPTY</h3>
-            <p className="mt-2 text-gray-500">No PUBG accounts currently in stock.</p>
+          <div className="glass empty-state corner-frame">
+            <h2 className="detail-title">Inventory Empty</h2>
+            <p className="page-copy" style={{ marginInline: "auto" }}>
+              No PUBG accounts match the active showroom filters.
+            </p>
           </div>
         )}
-      </div>
-      
+      </section>
     </main>
   );
 }

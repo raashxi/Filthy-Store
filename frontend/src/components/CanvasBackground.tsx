@@ -20,12 +20,12 @@ function AnimatedSphere() {
   return (
     <Sphere ref={sphereRef} args={[1, 64, 64]} scale={2.5}>
       <MeshDistortMaterial
-        color="#22c55e" // Tailwind green-500
+        color="#0a84ff"
         attach="material"
-        distort={0.4} // Adds a liquid/glitchy wave effect
+        distort={0.4}
         speed={1.5}
-        wireframe={true} // Keeps it tactical and prevents it from looking like a solid blob
-        opacity={0.15} // Very subtle
+        wireframe={true}
+        opacity={0.15}
         transparent={true}
       />
     </Sphere>
