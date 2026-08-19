@@ -1,8 +1,9 @@
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowRight, Sparkles } from "lucide-react";
+import { ArrowRight, BadgeDollarSign, MessageCircle, ShieldCheck, Sparkles } from "lucide-react";
 import { CountUp } from "@/components/CountUp";
 import { FadeIn } from "@/components/FadeIn";
+import { getWhatsAppUrl, sellAccountMessage } from "@/lib/contact";
 
 function TrustGlyph({ type }: { type: "secure" | "instant" | "price" | "support" | "seller" }) {
   const paths = {
@@ -53,7 +54,7 @@ function TrustGlyph({ type }: { type: "secure" | "instant" | "price" | "support"
 
 const games = [
   {
-    title: "PUBG Mobile",
+    title: "BGMI Accounts",
     href: "/pubg",
     category: "Battle Royale",
     subtitle: "M416 Glacier, X-Suits, Mythic inventory",
@@ -84,32 +85,26 @@ const trust = [
 ];
 
 const stats = [
-  { value: 50, suffix: "K+", label: "Happy Customers" },
-  { value: 100, suffix: "K+", label: "Accounts Sold" },
-  { value: 99.9, suffix: "%", label: "Success Rate", decimals: 1 },
+  { value: 2, suffix: "K+", label: "Happy Customers" },
+  { value: 3, suffix: "K+", label: "Accounts Sold" },
+  { value: 100, suffix: "%", label: "Success Rate", decimals: 0 },
   { value: 24, suffix: "/7", label: "Support" },
 ];
+
+const sellHref = getWhatsAppUrl(sellAccountMessage);
 
 export default function Home() {
   return (
     <main className="site-shell">
+      {/* HERO + GAME GRID */}
       <section className="container hero">
         <FadeIn>
           <div>
-            <div className="eyebrow">
-              <Sparkles size={15} /> Premium Accounts, Unmatched Experience
-            </div>
             <h1 className="hero-title metal-text">Choose Your Game</h1>
             <p className="hero-tagline">Unlock. Play. Dominate.</p>
             <p className="hero-copy">
-              FILTHY STORE brokers elite gaming accounts with verified inventory, premium cosmetics, private SKU tracking, and a handoff flow built for serious buyers.
+              FILTHY STORE is the elite broker for verified gaming accounts. BUY, SELL, and TRADE with zero hassle.
             </p>
-            <form action="/search" className="hero-search">
-              <input name="q" type="search" placeholder="Search Glacier, X-Suit, UID, SKU, game..." />
-              <button className="brand-button" type="submit">
-                Search <ArrowRight size={17} />
-              </button>
-            </form>
           </div>
         </FadeIn>
 
@@ -132,6 +127,48 @@ export default function Home() {
         </div>
       </section>
 
+      {/* SELL SECTION – moved up (after games) */}
+      <section className="container sell-section">
+        <FadeIn>
+          <div className="glass corner-frame sell-panel">
+            <div className="sell-copy">
+              <div className="eyebrow">
+                <BadgeDollarSign size={15} /> Turn Your Grind Into Cash
+              </div>
+              <h2 className="sell-title metal-text">Sell Your Account</h2>
+              <p className="sell-text">
+                Send your game and inventory details along with an account video, a description, and a screenshot of the login page. Make sure the login is safe and secure - single login accounts are preferred. We review the account path, value the rare inventory, and route serious offers without low-effort back-and-forth.
+              </p>
+              <div className="sell-actions">
+                <a href={sellHref} target="_blank" rel="noopener noreferrer" className="brand-button">
+                  <MessageCircle size={18} /> Sell Your Account
+                </a>
+                <Link href="/search" className="ghost-button">
+                  Browse Inventory <ArrowRight size={17} />
+                </Link>
+              </div>
+            </div>
+
+            <div className="sell-signal" aria-hidden="true">
+              <div className="signal-card">
+                <span>SKU INTAKE</span>
+                <strong>SELL-READY</strong>
+              </div>
+              <div className="signal-row">
+                <ShieldCheck size={16} /> Broker verified
+              </div>
+              <div className="signal-row">
+                <Sparkles size={16} /> Rare inventory review
+              </div>
+              <div className="signal-row">
+                <ArrowRight size={16} /> Rapid WhatsApp handoff
+              </div>
+            </div>
+          </div>
+        </FadeIn>
+      </section>
+
+      {/* TRUST STRIP – moved down */}
       <section className="trust-strip">
         <div className="container trust-grid">
           {trust.map((item) => (
@@ -148,6 +185,7 @@ export default function Home() {
         </div>
       </section>
 
+      {/* STATS STRIP – moved to last */}
       <section className="stats-strip">
         <div className="container stats-grid">
           {stats.map((stat) => (

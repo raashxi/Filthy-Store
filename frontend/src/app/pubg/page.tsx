@@ -1,4 +1,4 @@
-import { SlidersHorizontal, Sparkles } from "lucide-react";
+import { SlidersHorizontal } from "lucide-react";
 import { AccountCard, AccountProps } from "@/components/AccountCard";
 import { FadeIn } from "@/components/FadeIn";
 import { client } from "@/lib/sanity";
@@ -7,8 +7,8 @@ type PubgSearchParams = Promise<{ tier?: string; sort?: string }>;
 
 const tierOptions = [
   { label: "All tiers", value: "" },
-  { label: "Under $500", value: "under-500" },
-  { label: "$500-$1500", value: "500-1500" },
+  { label: "Under ₹500", value: "under-500" },
+  { label: "₹500–₹1500", value: "500-1500" },   // changed from "$500-$1500"
   { label: "Collector", value: "collector" },
 ];
 
@@ -42,6 +42,7 @@ export default async function PubgStore({ searchParams }: { searchParams: PubgSe
     price,
     game,
     description,
+    specList,
     "mainImageUrl": mainImage.asset->url,
     highlights,
     tags
@@ -55,10 +56,7 @@ export default async function PubgStore({ searchParams }: { searchParams: PubgSe
         <FadeIn>
           <div className="showroom-top">
             <div>
-              <div className="eyebrow">
-                <Sparkles size={15} /> Division Alpha
-              </div>
-              <h1 className="page-title metal-text">PUBG Mobile</h1>
+              <h1 className="page-title metal-text">BGMI ACCOUNTS</h1>
               <p className="page-copy">
                 A cinematic showroom for Glacier rifles, mythic wardrobes, X-Suits, elite-ranked builds, and collector-grade PUBG accounts.
               </p>

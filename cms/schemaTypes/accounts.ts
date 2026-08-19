@@ -1,4 +1,4 @@
-import { defineType, defineField } from 'sanity'
+import {defineArrayMember, defineField, defineType} from 'sanity'
 
 export const account = defineType({
   name: 'account',
@@ -59,27 +59,38 @@ export const account = defineType({
       name: 'gallery',
       title: 'Image Gallery',
       type: 'array',
-      of: [{ type: 'image', options: { hotspot: true } }],
+      of: [defineArrayMember({type: 'image', options: {hotspot: true}})],
       description: 'Upload all supporting screenshots here (inventory, stats, etc.).',
     }),
     defineField({
       name: 'description',
-      title: 'Full Description',
+      title: 'Short Description',
       type: 'text',
-      description: 'Detailed paragraph about the account history, specific unlinked social status, etc.',
+      description:
+        "A brief 1-3 sentence summary of the account - history, notable status, and anything that doesn't fit the spec list.",
+      validation: (Rule) =>
+        Rule.max(360).warning('Keep this short. Put detailed stats, skins, and inventory in Spec List.'),
+    }),
+    defineField({
+      name: 'specList',
+      title: 'Spec List',
+      type: 'array',
+      of: [defineArrayMember({type: 'string'})],
+      description:
+        'Scannable line items for level, inventory, skins, rare items, currencies, and ranked stats. Add one item per entry.',
     }),
     defineField({
       name: 'tags',
       title: 'Search Tags',
       type: 'array',
-      of: [{ type: 'string' }],
+      of: [defineArrayMember({type: 'string'})],
       description: 'Crucial for robust search. Add specific skins, ranks, etc.',
     }),
     defineField({
       name: 'highlights',
       title: 'Key Highlights',
       type: 'array',
-      of: [{ type: 'string' }],
+      of: [defineArrayMember({type: 'string'})],
       description: '3-4 bullet points describing the best features.',
     }),
   ],

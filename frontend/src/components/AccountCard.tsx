@@ -12,6 +12,7 @@ export interface AccountProps {
   price: number;
   game: string;
   description?: string;
+  specList?: string[];
   mainImageUrl?: string;
   galleryUrls?: string[];
   highlights?: string[];
@@ -48,7 +49,7 @@ export function AccountCard({ account, index = 0 }: { account: AccountProps; ind
           </div>
           {account.description && <p className="asset-copy">{account.description}</p>}
           <div className="asset-footer">
-            <span className="price">${account.price?.toLocaleString()}</span>
+            <span className="price">₹{account.price?.toLocaleString()}</span>
             <Link href={`/account/${account.slug}`} className="pill-cta" style={{ width: "auto", minWidth: 132, marginTop: 0 }}>
               Inspect <ArrowRight size={16} />
             </Link>

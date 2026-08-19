@@ -18,8 +18,8 @@ const spaceGrotesk = Space_Grotesk({
 });
 
 export const metadata: Metadata = {
-  title: "FILTHY STORE | Luxury Gaming Assets",
-  description: "A brokered luxury marketplace for verified high-tier PUBG, PES, and Free Fire accounts.",
+  title: "FILTHY STORE | Gaming Assets",
+  description: "A brokered marketplace for verified high-tier PUBG, PES, and Free Fire accounts.",
 };
 
 export default function RootLayout({

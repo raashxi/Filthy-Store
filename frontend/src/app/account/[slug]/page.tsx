@@ -4,6 +4,7 @@ import { ArrowLeft, BadgeCheck, MessageCircle, ShieldCheck } from "lucide-react"
 import { AccountProps } from "@/components/AccountCard";
 import { FadeIn } from "@/components/FadeIn";
 import { ImageGallery } from "@/components/ImageGallery";
+import { getWhatsAppUrl } from "@/lib/contact";
 import { client } from "@/lib/sanity";
 
 type ProductAccount = AccountProps & {
@@ -11,55 +12,6 @@ type ProductAccount = AccountProps & {
   highlights?: string[];
   tags?: string[];
 };
-
-function splitDescription(description?: string) {
-  if (!description) return [];
-
-  const newlineItems = description
-    .split(/\r?\n/)
-    .map((item) => item.trim())
-    .filter(Boolean);
-
-  if (newlineItems.length > 1) return newlineItems;
-
-  const normalized = description.replace(/\s+/g, " ").trim();
-  if (!normalized) return [];
-
-  const delimiterItems = normalized
-    .split(/\s*(?:[•|;]+|\s+-\s+)\s*/)
-    .map((item) => item.trim())
-    .filter(Boolean);
-
-  if (delimiterItems.length > 1) return delimiterItems;
-
-  const markers = [
-    "ACCOUNT LEVEL",
-    "COLLECTION LEVEL",
-    "MYTHIC FASHION",
-    "RENAME CARD",
-    "UC AVAILABLE",
-    "M416",
-    "UMP",
-    "DP ",
-    "MYSTIC",
-    "ABAKEN",
-    "MANY MORE",
-    "TIME TRAVELLER",
-    "ROGUE SET",
-    "INVADER SET",
-    "FOOL BACKPACK",
-    "RAVEN BACKPACK",
-    "SEREN",
-    "HELLFIRE",
-  ];
-
-  const markerPattern = new RegExp(`\\s+(?=${markers.map((marker) => marker.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")).join("|")})`, "gi");
-
-  return normalized
-    .split(markerPattern)
-    .map((item) => item.trim())
-    .filter(Boolean);
-}
 
 export default async function ProductPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
@@ -73,6 +25,7 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
     price,
     game,
     description,
+    specList,
     "mainImageUrl": mainImage.asset->url,
     "galleryUrls": gallery[].asset->url,
     highlights,
@@ -86,8 +39,8 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
   }
 
   const galleryImages = Array.from(new Set([account.mainImageUrl, ...(account.galleryUrls || [])].filter(Boolean))) as string[];
-  const brokerText = encodeURIComponent(`I'm interested in purchasing SKU ${account.sku} - ${account.title}`);
-  const descriptionItems = splitDescription(account.description);
+  const brokerHref = getWhatsAppUrl(`I'm interested in purchasing SKU ${account.sku} - ${account.title}`);
+  const specItems = account.specList?.map((item) => item.trim()).filter(Boolean) || [];
   const specs = [
     ["Game", account.game],
     ["SKU", account.sku],
@@ -114,10 +67,11 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
               <BadgeCheck size={15} /> Verified Asset
             </div>
             <h1 className="product-title">{account.title}</h1>
-            {descriptionItems.length > 0 && (
-              <div className="product-spec-list" aria-label="Account description">
-                {descriptionItems.map((item, index) => (
-                  <div className="product-spec-row" key={`${item}-${index}`}>
+            {account.description && <p className="product-intro">{account.description}</p>}
+            {specItems.length > 0 && (
+              <div className="product-spec-list" aria-label="Account specs">
+                {specItems.map((item) => (
+                  <div className="product-spec-row" key={item}>
                     {item}
                   </div>
                 ))}
@@ -136,7 +90,7 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
             </table>
 
             <div className="product-price">${account.price?.toLocaleString()}</div>
-            <a href={`https://wa.me/YOUR_PHONE_NUMBER?text=${brokerText}`} target="_blank" rel="noopener noreferrer" className="brand-button" style={{ width: "100%", marginTop: 24 }}>
+            <a href={brokerHref} target="_blank" rel="noopener noreferrer" className="brand-button" style={{ width: "100%", marginTop: 24 }}>
               <MessageCircle size={18} /> Contact Broker
             </a>
             <p className="product-copy" style={{ fontSize: 12, marginTop: 14 }}>

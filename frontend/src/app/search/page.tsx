@@ -12,7 +12,7 @@ export default async function SearchPage({
   const params = await searchParams;
   const term = params.q?.trim() || "";
 
-  const searchQuery = `*[_type == "account" && $term != "" && (title match $search || sku match $search || game match $search || description match $search || uid match $search || $term in tags[])] | order(_createdAt desc) {
+  const searchQuery = `*[_type == "account" && $term != "" && (title match $search || sku match $search || game match $search || description match $search || uid match $search || $term in tags[] || count(specList[match $search]) > 0)] | order(_createdAt desc) {
     _id,
     title,
     "slug": slug.current,
@@ -21,6 +21,7 @@ export default async function SearchPage({
     price,
     game,
     description,
+    specList,
     "mainImageUrl": mainImage.asset->url,
     highlights,
     tags
